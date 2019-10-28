@@ -18,7 +18,7 @@ function! htl_syntax#amend(options)
   let l:all_templates=(exists('g:htl_all_templates') && g:htl_all_templates)
   exec 'syntax region litHtmlRegion 
         \ contains=@HTMLSyntax,' . (a:options.typescript ? 'typescriptInterpolation' : 'jsTemplateExpression') . '
-        \ start=' . (l:all_templates ? '+\(html\)\?`+' : '+html`+') . '
+        \ start=' . (l:all_templates ? '+\?`+' : '+`+') . '
         \ skip=+\\`+
         \ end=+`+
         \ extend

@@ -94,12 +94,12 @@ fu! s:StateClass.openedLitHtmlTemplate() dict
   let l:index = 0
   let l:depth = 0
   while v:true
-    let [l:term, l:index, l:trash] = matchstrpos(getline(l:self.prevLine), '\Mhtml`\|\\`\|`', l:index)
+    let [l:term, l:index, l:trash] = matchstrpos(getline(l:self.prevLine), '\M`\|\\`\|`', l:index)
     if (l:index == -1)
       return (l:depth > 0)
     endif
-    if (l:term ==# 'html`')
-      let l:index += len('html`')
+    if (l:term ==# '`')
+      let l:index += len('`')
       let l:depth += 1
     elseif(l:term ==# '`')
       let l:index += len('`')
@@ -128,19 +128,19 @@ fu! s:StateClass.wasInsideLitHtml() dict
 endfu
 
 fu! s:StateClass.wasHtml() dict
-  return get(l:self.prevSynstack, -1) =~# '^html'
+  return get(l:self.prevSynstack, -1) =~# '^`'
 endfu
 fu! s:StateClass.isHtml() dict
-  return get(l:self.currSynstack, -1) =~# '^html'
+  return get(l:self.currSynstack, -1) =~# '^`'
 endfu
 fu! s:StateClass.isLitHtmlRegionCloser() dict
   return get(l:self.currSynstack, -1) ==# 'litHtmlRegion' && getline(l:self.currLine) =~# '^\s*`'
 endfu
 fu! s:StateClass.opensTemplate() dict
-  return get(l:self.currSynstack, -1) ==# 'litHtmlRegion' && getline(l:self.currLine) =~# '^\s*html`'
+  return get(l:self.currSynstack, -1) ==# 'litHtmlRegion' && getline(l:self.currLine) =~# '^\s*`'
 endfu
 fu! s:StateClass.closedTemplate() dict
-  return get(l:self.prevSynstack, -1) ==# 'litHtmlRegion' && getline(l:self.prevLine) !~# 'html`$'
+  return get(l:self.prevSynstack, -1) ==# 'litHtmlRegion' && getline(l:self.prevLine) !~# '`$'
 endfu
 fu! s:StateClass.wasJs() dict
   return get(l:self.prevSynstack, -1) =~# b:htl_js
@@ -187,7 +187,7 @@ endfu
 
 fu! s:SkipFuncHtmlTag()
   " call s:debug('SkipFuncHtmlTag col ' . col('.') . ': ' . synIDattr(synID(line('.'), col('.'), 0), 'name'))
-  return (synIDattr(synID(line('.'), col('.'), 0), 'name') !~# '^html')
+  return (synIDattr(synID(line('.'), col('.'), 0), 'name') !~# '^`')
 endfu
 
 fu! s:SkipFuncLitHtmlRegion()
@@ -248,7 +248,7 @@ fu! s:StateClass.getIndentDelta() dict
       return - &shiftwidth
     endif
   endif
-  if (l:syntax ==# 'litHtmlRegion' && 'html`' !=# strpart(getline(l:self.currLine), l:col-5, len('html`')))
+  if (l:syntax ==# 'litHtmlRegion' && '`' !=# strpart(getline(l:self.currLine), l:col-5, len('`')))
     call s:debug('getIndentDelta: end of litHtmlRegion')
     return - &shiftwidth
   endif
@@ -274,7 +274,7 @@ fu! s:StateClass.getIndentOfLastClose() dict
       call searchpair('{', '', '}', 'bW', 's:SkipFuncJsTemplateBraces()')
       call s:debug('getIndentOfLastClose: js brace base indent')
     elseif ('`' ==# l:closeWord && l:syntax ==# 'litHtmlRegion')
-      call searchpair('html`', '', '\(html\)\@<!`', 'bW', 's:SkipFuncLitHtmlRegion()')
+      call searchpair('`', '', '\@<!`', 'bW', 's:SkipFuncLitHtmlRegion()')
       call s:debug('getIndentOfLastClose: lit html region base indent ')
     elseif (l:syntax ==# 'htmlEndTag')
       let l:openWord = substitute(substitute(l:closeWord, '/', '', ''), '>', '', '')
